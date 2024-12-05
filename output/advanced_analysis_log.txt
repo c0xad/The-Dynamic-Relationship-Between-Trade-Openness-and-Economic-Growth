@@ -1,0 +1,927 @@
+{smcl}
+{com}{sf}{ul off}{txt}{.-}
+      name:  {res}<unnamed>
+       {txt}log:  {res}c:\Users\eren\Desktop\fundshedge\output/advanced_analysis_log.txt
+  {txt}log type:  {res}smcl
+ {txt}opened on:  {res} 5 Dec 2024, 04:02:38
+{txt}
+{com}. 
+. * Load the prepared dataset
+. use "data/turkey_macro_data.dta", clear
+{txt}
+{com}. 
+. ********************************************************************************
+. * 1. Enhanced Data Preparation
+. ********************************************************************************
+. * Set time series
+. tsset year
+{res}
+{p 0 15 2}{txt:Time variable: }{res:year}{txt:, }{res:{bind:1960}}{txt: to }{res:{bind:2022}}{p_end}
+{txt}{col 9}Delta: {res}1 unit
+{txt}
+{com}. 
+. * Generate period dummies for structural breaks
+. gen period1 = (year < 1980)        // Pre-liberalization
+{txt}
+{com}. gen period2 = (year >= 1980 & year < 2001)  // Post-liberalization
+{txt}
+{com}. gen period3 = (year >= 2001)       // Post-2001 crisis
+{txt}
+{com}. 
+. * Label periods
+. label define periods 1 "Pre-liberalization" 2 "Post-liberalization" 3 "Post-2001"
+{txt}
+{com}. label values period1 periods
+{txt}
+{com}. label values period2 periods
+{txt}
+{com}. label values period3 periods
+{txt}
+{com}. 
+. * Generate 3-year moving averages for smoothed analysis
+. foreach var of varlist gdp_growth trade_gdp investment inflation govt_exp tertiary_educ {c -(}
+{txt}  2{com}.     gen `var'_ma3 = (l1.`var' + `var' + f1.`var')/3
+{txt}  3{com}.     label variable `var'_ma3 "3-year MA of `var'"
+{txt}  4{com}. {c )-}
+{txt}(3 missing values generated)
+(2 missing values generated)
+(2 missing values generated)
+(2 missing values generated)
+(50 missing values generated)
+(22 missing values generated)
+
+{com}. 
+. ********************************************************************************
+. * 2. Descriptive Statistics
+. ********************************************************************************
+. * Overall summary statistics
+. estpost summarize gdp_growth trade_gdp investment inflation govt_exp tertiary_educ, detail
+
+{txt}{space 0}{space 0}{ralign 12:}{space 1}{c |}{space 1}{ralign 9:e(count)}{space 1}{space 1}{ralign 9:e(sum_w)}{space 1}{space 1}{ralign 9:e(mean)}{space 1}{space 1}{ralign 9:e(Var)}{space 1}{space 1}{ralign 9:e(sd)}{space 1}{space 1}{ralign 9:e(skewn~)}{space 1}{space 1}{ralign 9:e(kurto~)}{space 1}{space 1}{ralign 9:e(sum)}{space 1}{space 1}{ralign 9:e(min)}{space 1}
+{space 0}{hline 13}{c   +}{hline 11}{hline 11}{hline 11}{hline 11}{hline 11}{hline 11}{hline 11}{hline 11}{hline 11}
+{space 0}{space 0}{ralign 12:gdp_growth}{space 1}{c |}{space 1}{ralign 9:{res:{sf:       62}}}{space 1}{space 1}{ralign 9:{res:{sf:       62}}}{space 1}{space 1}{ralign 9:{res:{sf: 4.781495}}}{space 1}{space 1}{ralign 9:{res:{sf: 15.43546}}}{space 1}{space 1}{ralign 9:{res:{sf: 3.928799}}}{space 1}{space 1}{ralign 9:{res:{sf:-.7133846}}}{space 1}{space 1}{ralign 9:{res:{sf: 3.334329}}}{space 1}{space 1}{ralign 9:{res:{sf: 296.4527}}}{space 1}{space 1}{ralign 9:{res:{sf:-5.750007}}}{space 1}
+{space 0}{space 0}{ralign 12:trade_gdp}{space 1}{c |}{space 1}{ralign 9:{res:{sf:       63}}}{space 1}{space 1}{ralign 9:{res:{sf:       63}}}{space 1}{space 1}{ralign 9:{res:{sf: 34.24363}}}{space 1}{space 1}{ralign 9:{res:{sf: 354.5481}}}{space 1}{space 1}{ralign 9:{res:{sf: 18.82945}}}{space 1}{space 1}{ralign 9:{res:{sf: .1475301}}}{space 1}{space 1}{ralign 9:{res:{sf: 2.057128}}}{space 1}{space 1}{ralign 9:{res:{sf: 2157.349}}}{space 1}{space 1}{ralign 9:{res:{sf: 5.726872}}}{space 1}
+{space 0}{space 0}{ralign 12:investment}{space 1}{c |}{space 1}{ralign 9:{res:{sf:       63}}}{space 1}{space 1}{ralign 9:{res:{sf:       63}}}{space 1}{space 1}{ralign 9:{res:{sf: 25.97323}}}{space 1}{space 1}{ralign 9:{res:{sf:  18.2128}}}{space 1}{space 1}{ralign 9:{res:{sf: 4.267646}}}{space 1}{space 1}{ralign 9:{res:{sf:-.3712074}}}{space 1}{space 1}{ralign 9:{res:{sf: 2.451067}}}{space 1}{space 1}{ralign 9:{res:{sf: 1636.314}}}{space 1}{space 1}{ralign 9:{res:{sf: 16.95279}}}{space 1}
+{space 0}{space 0}{ralign 12:inflation}{space 1}{c |}{space 1}{ralign 9:{res:{sf:       63}}}{space 1}{space 1}{ralign 9:{res:{sf:       63}}}{space 1}{space 1}{ralign 9:{res:{sf: 32.10197}}}{space 1}{space 1}{ralign 9:{res:{sf: 829.1246}}}{space 1}{space 1}{ralign 9:{res:{sf: 28.79452}}}{space 1}{space 1}{ralign 9:{res:{sf:  .834013}}}{space 1}{space 1}{ralign 9:{res:{sf: 2.390072}}}{space 1}{space 1}{ralign 9:{res:{sf: 2022.424}}}{space 1}{space 1}{ralign 9:{res:{sf: 1.119638}}}{space 1}
+{space 0}{space 0}{ralign 12:govt_exp}{space 1}{c |}{space 1}{ralign 9:{res:{sf:       15}}}{space 1}{space 1}{ralign 9:{res:{sf:       15}}}{space 1}{space 1}{ralign 9:{res:{sf:  24.5698}}}{space 1}{space 1}{ralign 9:{res:{sf: 3.324263}}}{space 1}{space 1}{ralign 9:{res:{sf: 1.823256}}}{space 1}{space 1}{ralign 9:{res:{sf: .5674405}}}{space 1}{space 1}{ralign 9:{res:{sf: 2.149993}}}{space 1}{space 1}{ralign 9:{res:{sf: 368.5469}}}{space 1}{space 1}{ralign 9:{res:{sf: 22.10645}}}{space 1}
+{space 0}{space 0}{ralign 12:tertiary_e~c}{space 1}{c |}{space 1}{ralign 9:{res:{sf:       49}}}{space 1}{space 1}{ralign 9:{res:{sf:       49}}}{space 1}{space 1}{ralign 9:{res:{sf: .6266737}}}{space 1}{space 1}{ralign 9:{res:{sf: .0589145}}}{space 1}{space 1}{ralign 9:{res:{sf: .2427231}}}{space 1}{space 1}{ralign 9:{res:{sf:-.2365439}}}{space 1}{space 1}{ralign 9:{res:{sf: 1.958826}}}{space 1}{space 1}{ralign 9:{res:{sf: 30.70701}}}{space 1}{space 1}{ralign 9:{res:{sf:   .20193}}}{space 1}
+
+{space 0}{space 0}{ralign 12:}{space 1}{c |}{space 1}{ralign 9:e(max)}{space 1}{space 1}{ralign 9:e(p1)}{space 1}{space 1}{ralign 9:e(p5)}{space 1}{space 1}{ralign 9:e(p10)}{space 1}{space 1}{ralign 9:e(p25)}{space 1}{space 1}{ralign 9:e(p50)}{space 1}{space 1}{ralign 9:e(p75)}{space 1}{space 1}{ralign 9:e(p90)}{space 1}{space 1}{ralign 9:e(p95)}{space 1}
+{space 0}{hline 13}{c   +}{hline 11}{hline 11}{hline 11}{hline 11}{hline 11}{hline 11}{hline 11}{hline 11}{hline 11}
+{space 0}{space 0}{ralign 12:gdp_growth}{space 1}{c |}{space 1}{ralign 9:{res:{sf: 11.43938}}}{space 1}{space 1}{ralign 9:{res:{sf:-5.750007}}}{space 1}{space 1}{ralign 9:{res:{sf:-3.263168}}}{space 1}{space 1}{ralign 9:{res:{sf: .2902441}}}{space 1}{space 1}{ralign 9:{res:{sf: 2.823529}}}{space 1}{space 1}{ralign 9:{res:{sf: 5.251282}}}{space 1}{space 1}{ralign 9:{res:{sf: 7.425788}}}{space 1}{space 1}{ralign 9:{res:{sf: 9.266147}}}{space 1}{space 1}{ralign 9:{res:{sf: 10.46118}}}{space 1}
+{space 0}{space 0}{ralign 12:trade_gdp}{space 1}{c |}{space 1}{ralign 9:{res:{sf: 81.17013}}}{space 1}{space 1}{ralign 9:{res:{sf: 5.726872}}}{space 1}{space 1}{ralign 9:{res:{sf: 9.090909}}}{space 1}{space 1}{ralign 9:{res:{sf: 9.935004}}}{space 1}{space 1}{ralign 9:{res:{sf: 14.56244}}}{space 1}{space 1}{ralign 9:{res:{sf: 34.82697}}}{space 1}{space 1}{ralign 9:{res:{sf: 48.82584}}}{space 1}{space 1}{ralign 9:{res:{sf: 54.97033}}}{space 1}{space 1}{ralign 9:{res:{sf: 62.61421}}}{space 1}
+{space 0}{space 0}{ralign 12:investment}{space 1}{c |}{space 1}{ralign 9:{res:{sf: 32.97471}}}{space 1}{space 1}{ralign 9:{res:{sf: 16.95279}}}{space 1}{space 1}{ralign 9:{res:{sf: 17.32746}}}{space 1}{space 1}{ralign 9:{res:{sf: 19.62175}}}{space 1}{space 1}{ralign 9:{res:{sf: 23.38351}}}{space 1}{space 1}{ralign 9:{res:{sf: 26.36606}}}{space 1}{space 1}{ralign 9:{res:{sf: 29.43859}}}{space 1}{space 1}{ralign 9:{res:{sf: 31.29377}}}{space 1}{space 1}{ralign 9:{res:{sf: 32.02013}}}{space 1}
+{space 0}{space 0}{ralign 12:inflation}{space 1}{c |}{space 1}{ralign 9:{res:{sf:  105.215}}}{space 1}{space 1}{ralign 9:{res:{sf: 1.119638}}}{space 1}{space 1}{ralign 9:{res:{sf: 4.555534}}}{space 1}{space 1}{ralign 9:{res:{sf:  6.04624}}}{space 1}{space 1}{ralign 9:{res:{sf: 8.471996}}}{space 1}{space 1}{ralign 9:{res:{sf: 19.01141}}}{space 1}{space 1}{ralign 9:{res:{sf: 60.30387}}}{space 1}{space 1}{ralign 9:{res:{sf: 72.30884}}}{space 1}{space 1}{ralign 9:{res:{sf: 85.66936}}}{space 1}
+{space 0}{space 0}{ralign 12:govt_exp}{space 1}{c |}{space 1}{ralign 9:{res:{sf: 28.14363}}}{space 1}{space 1}{ralign 9:{res:{sf: 22.10645}}}{space 1}{space 1}{ralign 9:{res:{sf: 22.10645}}}{space 1}{space 1}{ralign 9:{res:{sf: 22.73505}}}{space 1}{space 1}{ralign 9:{res:{sf: 23.00784}}}{space 1}{space 1}{ralign 9:{res:{sf:  24.0716}}}{space 1}{space 1}{ralign 9:{res:{sf: 26.38385}}}{space 1}{space 1}{ralign 9:{res:{sf:  27.2774}}}{space 1}{space 1}{ralign 9:{res:{sf: 28.14363}}}{space 1}
+{space 0}{space 0}{ralign 12:tertiary_e~c}{space 1}{c |}{space 1}{ralign 9:{res:{sf:  1.03682}}}{space 1}{space 1}{ralign 9:{res:{sf:   .20193}}}{space 1}{space 1}{ralign 9:{res:{sf:   .23501}}}{space 1}{space 1}{ralign 9:{res:{sf:    .2398}}}{space 1}{space 1}{ralign 9:{res:{sf:   .49847}}}{space 1}{space 1}{ralign 9:{res:{sf:   .64478}}}{space 1}{space 1}{ralign 9:{res:{sf:    .8364}}}{space 1}{space 1}{ralign 9:{res:{sf:   .91088}}}{space 1}{space 1}{ralign 9:{res:{sf:   .98248}}}{space 1}
+
+{space 0}{space 0}{ralign 12:}{space 1}{c |}{space 1}{ralign 9:e(p99)}{space 1}
+{space 0}{hline 13}{c   +}{hline 11}
+{space 0}{space 0}{ralign 12:gdp_growth}{space 1}{c |}{space 1}{ralign 9:{res:{sf: 11.43938}}}{space 1}
+{space 0}{space 0}{ralign 12:trade_gdp}{space 1}{c |}{space 1}{ralign 9:{res:{sf: 81.17013}}}{space 1}
+{space 0}{space 0}{ralign 12:investment}{space 1}{c |}{space 1}{ralign 9:{res:{sf: 32.97471}}}{space 1}
+{space 0}{space 0}{ralign 12:inflation}{space 1}{c |}{space 1}{ralign 9:{res:{sf:  105.215}}}{space 1}
+{space 0}{space 0}{ralign 12:govt_exp}{space 1}{c |}{space 1}{ralign 9:{res:{sf: 28.14363}}}{space 1}
+{space 0}{space 0}{ralign 12:tertiary_e~c}{space 1}{c |}{space 1}{ralign 9:{res:{sf:  1.03682}}}{space 1}
+
+{com}. esttab using "output/detailed_summary_stats.csv", ///
+>     cells("count mean sd min p25 p50 p75 max") ///
+>     label noobs replace
+{res}{txt}(output written to {browse  `"output/detailed_summary_stats.csv"'})
+
+{com}. 
+. * Summary statistics by period
+. estpost tabstat gdp_growth trade_gdp investment inflation govt_exp tertiary_educ, ///
+>     by(period1) statistics(count mean sd min max) columns(statistics)
+
+{txt}Summary statistics: count mean sd min max
+     for variables: gdp_growth trade_gdp investment inflation govt_exp tertiary_educ
+  by categories of: period1
+
+{space 0}{space 0}{ralign 12:period1}{space 1}{c |}{space 1}{ralign 9:e(count)}{space 1}{space 1}{ralign 9:e(mean)}{space 1}{space 1}{ralign 9:e(sd)}{space 1}{space 1}{ralign 9:e(min)}{space 1}{space 1}{ralign 9:e(max)}{space 1}
+{space 0}{hline 13}{c   +}{hline 11}{hline 11}{hline 11}{hline 11}{hline 11}
+{space 0}{res:{lalign 13:0}}{c |}{space 11}{space 11}{space 11}{space 11}{space 11}
+{space 0}{space 0}{ralign 12:gdp_growth}{space 1}{c |}{space 1}{ralign 9:{res:{sf:       43}}}{space 1}{space 1}{ralign 9:{res:{sf: 4.617866}}}{space 1}{space 1}{ralign 9:{res:{sf: 4.268751}}}{space 1}{space 1}{ralign 9:{res:{sf:-5.750007}}}{space 1}{space 1}{ralign 9:{res:{sf: 11.43938}}}{space 1}
+{space 0}{space 0}{ralign 12:trade_gdp}{space 1}{c |}{space 1}{ralign 9:{res:{sf:       43}}}{space 1}{space 1}{ralign 9:{res:{sf: 44.67005}}}{space 1}{space 1}{ralign 9:{res:{sf: 12.97983}}}{space 1}{space 1}{ralign 9:{res:{sf: 17.08982}}}{space 1}{space 1}{ralign 9:{res:{sf: 81.17013}}}{space 1}
+{space 0}{space 0}{ralign 12:investment}{space 1}{c |}{space 1}{ralign 9:{res:{sf:       43}}}{space 1}{space 1}{ralign 9:{res:{sf: 28.22899}}}{space 1}{space 1}{ralign 9:{res:{sf: 2.681022}}}{space 1}{space 1}{ralign 9:{res:{sf: 23.49444}}}{space 1}{space 1}{ralign 9:{res:{sf: 32.97471}}}{space 1}
+{space 0}{space 0}{ralign 12:inflation}{space 1}{c |}{space 1}{ralign 9:{res:{sf:       43}}}{space 1}{space 1}{ralign 9:{res:{sf:  39.3941}}}{space 1}{space 1}{ralign 9:{res:{sf: 30.24645}}}{space 1}{space 1}{ralign 9:{res:{sf: 6.250977}}}{space 1}{space 1}{ralign 9:{res:{sf:  105.215}}}{space 1}
+{space 0}{space 0}{ralign 12:govt_exp}{space 1}{c |}{space 1}{ralign 9:{res:{sf:       15}}}{space 1}{space 1}{ralign 9:{res:{sf:  24.5698}}}{space 1}{space 1}{ralign 9:{res:{sf: 1.823256}}}{space 1}{space 1}{ralign 9:{res:{sf: 22.10645}}}{space 1}{space 1}{ralign 9:{res:{sf: 28.14363}}}{space 1}
+{space 0}{space 0}{ralign 12:tertiary_e~c}{space 1}{c |}{space 1}{ralign 9:{res:{sf:       40}}}{space 1}{space 1}{ralign 9:{res:{sf: .7112555}}}{space 1}{space 1}{ralign 9:{res:{sf: .1795699}}}{space 1}{space 1}{ralign 9:{res:{sf:    .3473}}}{space 1}{space 1}{ralign 9:{res:{sf:  1.03682}}}{space 1}
+{space 0}{hline 13}{c   +}{hline 11}{hline 11}{hline 11}{hline 11}{hline 11}
+{space 0}{res:{lalign 13:Pre-libera~n}}{c |}{space 11}{space 11}{space 11}{space 11}{space 11}
+{space 0}{space 0}{ralign 12:gdp_growth}{space 1}{c |}{space 1}{ralign 9:{res:{sf:       19}}}{space 1}{space 1}{ralign 9:{res:{sf: 5.151813}}}{space 1}{space 1}{ralign 9:{res:{sf: 3.095447}}}{space 1}{space 1}{ralign 9:{res:{sf:-.6241136}}}{space 1}{space 1}{ralign 9:{res:{sf: 11.21282}}}{space 1}
+{space 0}{space 0}{ralign 12:trade_gdp}{space 1}{c |}{space 1}{ralign 9:{res:{sf:       20}}}{space 1}{space 1}{ralign 9:{res:{sf: 11.82685}}}{space 1}{space 1}{ralign 9:{res:{sf: 3.088264}}}{space 1}{space 1}{ralign 9:{res:{sf: 5.726872}}}{space 1}{space 1}{ralign 9:{res:{sf: 17.00282}}}{space 1}
+{space 0}{space 0}{ralign 12:investment}{space 1}{c |}{space 1}{ralign 9:{res:{sf:       20}}}{space 1}{space 1}{ralign 9:{res:{sf: 21.12335}}}{space 1}{space 1}{ralign 9:{res:{sf:  2.69572}}}{space 1}{space 1}{ralign 9:{res:{sf: 16.95279}}}{space 1}{space 1}{ralign 9:{res:{sf: 25.64342}}}{space 1}
+{space 0}{space 0}{ralign 12:inflation}{space 1}{c |}{space 1}{ralign 9:{res:{sf:       20}}}{space 1}{space 1}{ralign 9:{res:{sf: 16.42389}}}{space 1}{space 1}{ralign 9:{res:{sf: 17.44096}}}{space 1}{space 1}{ralign 9:{res:{sf: 1.119638}}}{space 1}{space 1}{ralign 9:{res:{sf: 63.54311}}}{space 1}
+{space 0}{space 0}{ralign 12:govt_exp}{space 1}{c |}{space 1}{ralign 9:{res:{sf:        0}}}{space 1}{space 1}{ralign 9:{res:{sf:        .}}}{space 1}{space 1}{ralign 9:{res:{sf:        .}}}{space 1}{space 1}{ralign 9:{res:{sf:        .}}}{space 1}{space 1}{ralign 9:{res:{sf:        .}}}{space 1}
+{space 0}{space 0}{ralign 12:tertiary_e~c}{space 1}{c |}{space 1}{ralign 9:{res:{sf:        9}}}{space 1}{space 1}{ralign 9:{res:{sf: .2507544}}}{space 1}{space 1}{ralign 9:{res:{sf: .0392557}}}{space 1}{space 1}{ralign 9:{res:{sf:   .20193}}}{space 1}{space 1}{ralign 9:{res:{sf:   .33285}}}{space 1}
+{space 0}{hline 13}{c   +}{hline 11}{hline 11}{hline 11}{hline 11}{hline 11}
+{space 0}{res:{lalign 13:Total}}{c |}{space 11}{space 11}{space 11}{space 11}{space 11}
+{space 0}{space 0}{ralign 12:gdp_growth}{space 1}{c |}{space 1}{ralign 9:{res:{sf:       62}}}{space 1}{space 1}{ralign 9:{res:{sf: 4.781495}}}{space 1}{space 1}{ralign 9:{res:{sf: 3.928799}}}{space 1}{space 1}{ralign 9:{res:{sf:-5.750007}}}{space 1}{space 1}{ralign 9:{res:{sf: 11.43938}}}{space 1}
+{space 0}{space 0}{ralign 12:trade_gdp}{space 1}{c |}{space 1}{ralign 9:{res:{sf:       63}}}{space 1}{space 1}{ralign 9:{res:{sf: 34.24363}}}{space 1}{space 1}{ralign 9:{res:{sf: 18.82945}}}{space 1}{space 1}{ralign 9:{res:{sf: 5.726872}}}{space 1}{space 1}{ralign 9:{res:{sf: 81.17013}}}{space 1}
+{space 0}{space 0}{ralign 12:investment}{space 1}{c |}{space 1}{ralign 9:{res:{sf:       63}}}{space 1}{space 1}{ralign 9:{res:{sf: 25.97323}}}{space 1}{space 1}{ralign 9:{res:{sf: 4.267646}}}{space 1}{space 1}{ralign 9:{res:{sf: 16.95279}}}{space 1}{space 1}{ralign 9:{res:{sf: 32.97471}}}{space 1}
+{space 0}{space 0}{ralign 12:inflation}{space 1}{c |}{space 1}{ralign 9:{res:{sf:       63}}}{space 1}{space 1}{ralign 9:{res:{sf: 32.10197}}}{space 1}{space 1}{ralign 9:{res:{sf: 28.79452}}}{space 1}{space 1}{ralign 9:{res:{sf: 1.119638}}}{space 1}{space 1}{ralign 9:{res:{sf:  105.215}}}{space 1}
+{space 0}{space 0}{ralign 12:govt_exp}{space 1}{c |}{space 1}{ralign 9:{res:{sf:       15}}}{space 1}{space 1}{ralign 9:{res:{sf:  24.5698}}}{space 1}{space 1}{ralign 9:{res:{sf: 1.823256}}}{space 1}{space 1}{ralign 9:{res:{sf: 22.10645}}}{space 1}{space 1}{ralign 9:{res:{sf: 28.14363}}}{space 1}
+{space 0}{space 0}{ralign 12:tertiary_e~c}{space 1}{c |}{space 1}{ralign 9:{res:{sf:       49}}}{space 1}{space 1}{ralign 9:{res:{sf: .6266737}}}{space 1}{space 1}{ralign 9:{res:{sf: .2427231}}}{space 1}{space 1}{ralign 9:{res:{sf:   .20193}}}{space 1}{space 1}{ralign 9:{res:{sf:  1.03682}}}{space 1}
+
+{com}. esttab using "output/summary_by_period.csv", ///
+>     cells("count mean(fmt(%9.2f)) sd(fmt(%9.2f)) min(fmt(%9.2f)) max(fmt(%9.2f))") ///
+>     noobs replace title("Summary Statistics by Period")
+{res}{txt}(output written to {browse  `"output/summary_by_period.csv"'})
+
+{com}. 
+. ********************************************************************************
+. * 3. Enhanced Visualization
+. ********************************************************************************
+. * Set graph style
+. set scheme s2color
+{txt}
+{com}. graph set window fontface "Arial"
+{txt}
+{com}. 
+. * Time series plots with trends and events
+. foreach var of varlist gdp_growth trade_gdp investment inflation {c -(}
+{txt}  2{com}.     twoway (line `var' year, lcolor(blue)) ///
+>            (line `var'_ma3 year, lcolor(red) lpattern(dash)) ///
+>            (scatter `var' year if year == 1980, mlabel(year) msymbol(D)) ///
+>            (scatter `var' year if year == 2001, mlabel(year) msymbol(D)), ///
+>            title("`var' Over Time with Key Events", size(medium)) ///
+>            subtitle("With 3-year Moving Average") ///
+>            xtitle("Year") ytitle("`var'") ///
+>            xline(1980 2001, lpattern(dash) lcolor(gray)) ///
+>            legend(order(1 "Actual" 2 "3-year MA" 3 "Liberalization" 4 "2001 Crisis")) ///
+>            note("Source: World Bank WDI") ///
+>            graphregion(color(white)) bgcolor(white) ///
+>            ylabel(, angle(horizontal)) ///
+>            saving("output/`var'_advanced_trend.gph", replace)
+{txt}  3{com}.     graph export "output/`var'_advanced_trend.png", replace
+{txt}  4{com}. {c )-}
+{res}{txt}file {bf:output/gdp_growth_advanced_trend.gph} saved
+{p 0 4 2}
+file {bf}
+output/gdp_growth_advanced_trend.png{rm}
+saved as
+PNG
+format
+{p_end}
+{res}{txt}file {bf:output/trade_gdp_advanced_trend.gph} saved
+{p 0 4 2}
+file {bf}
+output/trade_gdp_advanced_trend.png{rm}
+saved as
+PNG
+format
+{p_end}
+{res}{txt}file {bf:output/investment_advanced_trend.gph} saved
+{p 0 4 2}
+file {bf}
+output/investment_advanced_trend.png{rm}
+saved as
+PNG
+format
+{p_end}
+{res}{txt}file {bf:output/inflation_advanced_trend.gph} saved
+{p 0 4 2}
+file {bf}
+output/inflation_advanced_trend.png{rm}
+saved as
+PNG
+format
+{p_end}
+
+{com}. 
+. * Create combined plot for trade components
+. twoway (line trade_gdp year, lcolor(blue)) ///
+>        (line exports_gdp year, lcolor(green)) ///
+>        (line imports_gdp year, lcolor(red)), ///
+>        title("Trade Components Over Time", size(medium)) ///
+>        xtitle("Year") ytitle("% of GDP") ///
+>        legend(order(1 "Total Trade" 2 "Exports" 3 "Imports")) ///
+>        note("Source: World Bank WDI") ///
+>        graphregion(color(white)) bgcolor(white) ///
+>        ylabel(, angle(horizontal)) ///
+>        saving("output/trade_components.gph", replace)
+{res}{txt}file {bf:output/trade_components.gph} saved
+
+{com}. graph export "output/trade_components.png", replace
+{txt}{p 0 4 2}
+file {bf}
+output/trade_components.png{rm}
+saved as
+PNG
+format
+{p_end}
+
+{com}. 
+. * Correlation matrix visualization
+. * Using standard correlation matrix instead of heatmap
+. correlate gdp_growth trade_gdp investment inflation govt_exp tertiary_educ
+{txt}(obs=15)
+
+             {c |} gdp_gr~h trade_~p invest~t inflat~n govt_exp tertia~c
+{hline 13}{c +}{hline 54}
+  gdp_growth {c |}{res}   1.0000
+   {txt}trade_gdp {c |}{res}   0.1933   1.0000
+  {txt}investment {c |}{res}   0.4113   0.8193   1.0000
+   {txt}inflation {c |}{res}   0.0655   0.8370   0.6077   1.0000
+    {txt}govt_exp {c |}{res}  -0.5290   0.2492  -0.1253   0.1225   1.0000
+{txt}tertiary_e~c {c |}{res}   0.2738   0.9019   0.8309   0.6687   0.2249   1.0000
+
+{txt}
+{com}. matrix C = r(C)
+{txt}
+{com}. matrix list C
+{res}
+{txt}symmetric C[6,6]
+                gdp_growth     trade_gdp    investment     inflation      govt_exp  tertiary_e~c
+  gdp_growth {res}            1
+{txt}   trade_gdp {res}    .19328741             1
+{txt}  investment {res}    .41131955     .81932193             1
+{txt}   inflation {res}    .06547899      .8370454     .60768471             1
+{txt}    govt_exp {res}   -.52900933     .24920322     -.1252554     .12252581             1
+{txt}tertiary_e~c {res}      .273783     .90185851      .8309106     .66870361     .22490584             1
+{reset}
+{com}. 
+. * Save correlation matrix to CSV
+. putexcel set "output/correlation_matrix.xlsx", replace
+{res}{txt}Note: File will be replaced when the first {cmd:putexcel} command is issued.
+
+{com}. putexcel A1 = matrix(C), names
+{res}{txt}file {bf:output/correlation_matrix.xlsx} saved
+
+{com}. 
+. ********************************************************************************
+. * 4. Advanced Statistical Analysis
+. ********************************************************************************
+. * Stationarity tests
+. foreach var of varlist gdp_growth trade_gdp investment inflation govt_exp tertiary_educ {c -(}
+{txt}  2{com}.     dfuller `var', trend
+{txt}  3{com}. {c )-}
+
+{txt}Dickey–Fuller test for unit root{col 44}Number of obs  = {res}{ralign 2:61}
+{txt}Variable: {res}gdp_growth{txt}{col 44}Number of lags = {res}{ralign 2:0}
+
+{txt}H0: Random walk with or without drift
+
+{col 40}Dickey–Fuller
+{col 20}Test{col 30}{hline 8} critical value {hline 9}
+              statistic           1%           5%          10%
+{hline 62}
+ Z(t)       {res}     -7.731       -4.126       -3.489       -3.173
+{txt}{hline 62}
+MacKinnon approximate {it:p}-value for Z(t) = {res}0.0000{txt}.
+
+Dickey–Fuller test for unit root{col 44}Number of obs  = {res}{ralign 2:62}
+{txt}Variable: {res}trade_gdp{txt}{col 44}Number of lags = {res}{ralign 2:0}
+
+{txt}H0: Random walk with or without drift
+
+{col 40}Dickey–Fuller
+{col 20}Test{col 30}{hline 8} critical value {hline 9}
+              statistic           1%           5%          10%
+{hline 62}
+ Z(t)       {res}     -2.451       -4.124       -3.488       -3.173
+{txt}{hline 62}
+MacKinnon approximate {it:p}-value for Z(t) = {res}0.3528{txt}.
+
+Dickey–Fuller test for unit root{col 44}Number of obs  = {res}{ralign 2:62}
+{txt}Variable: {res}investment{txt}{col 44}Number of lags = {res}{ralign 2:0}
+
+{txt}H0: Random walk with or without drift
+
+{col 40}Dickey–Fuller
+{col 20}Test{col 30}{hline 8} critical value {hline 9}
+              statistic           1%           5%          10%
+{hline 62}
+ Z(t)       {res}     -1.866       -4.124       -3.488       -3.173
+{txt}{hline 62}
+MacKinnon approximate {it:p}-value for Z(t) = {res}0.6721{txt}.
+
+Dickey–Fuller test for unit root{col 44}Number of obs  = {res}{ralign 2:62}
+{txt}Variable: {res}inflation{txt}{col 44}Number of lags = {res}{ralign 2:0}
+
+{txt}H0: Random walk with or without drift
+
+{col 40}Dickey–Fuller
+{col 20}Test{col 30}{hline 8} critical value {hline 9}
+              statistic           1%           5%          10%
+{hline 62}
+ Z(t)       {res}     -1.928       -4.124       -3.488       -3.173
+{txt}{hline 62}
+MacKinnon approximate {it:p}-value for Z(t) = {res}0.6402{txt}.
+
+Dickey–Fuller test for unit root{col 44}Number of obs  = {res}{ralign 2:14}
+{txt}Variable: {res}govt_exp{txt}{col 44}Number of lags = {res}{ralign 2:0}
+
+{txt}H0: Random walk with or without drift
+
+{col 40}Dickey–Fuller
+{col 20}Test{col 30}{hline 8} critical value {hline 9}
+              statistic           1%           5%          10%
+{hline 62}
+ Z(t)       {res}     -1.990       -4.380       -3.600       -3.240
+{txt}{hline 62}
+MacKinnon approximate {it:p}-value for Z(t) = {res}0.6071{txt}.
+
+Dickey–Fuller test for unit root{col 44}Number of obs  = {res}{ralign 2:45}
+{txt}Variable: {res}tertiary_educ{txt}{col 44}Number of lags = {res}{ralign 2:0}
+
+{txt}H0: Random walk with or without drift
+
+{col 40}Dickey–Fuller
+{col 20}Test{col 30}{hline 8} critical value {hline 9}
+              statistic           1%           5%          10%
+{hline 62}
+ Z(t)       {res}     -2.657       -4.196       -3.520       -3.192
+{txt}{hline 62}
+MacKinnon approximate {it:p}-value for Z(t) = {res}0.2545{txt}.
+
+{com}. 
+. * Granger causality tests
+. varsoc gdp_growth trade_gdp, maxlag(4)
+
+{txt}Lag-order selection criteria
+
+{col 4}Sample: {res}1965 {txt}thru{res} 2022 {txt}{col 61}Number of obs = {res}58
+{col 3}{text}{c TLC}{hline 5}{c TT}{hline 9}{hline 8}{hline 1}{hline 5}{hline 6}{hline 8}{hline 1}{hline 9}{hline 1}{hline 9}{hline 1}{hline 9}{hline 1}{hline 1}{c TRC}
+{col 3}{text}{c |} Lag{col 9}{c |}    LL  {col 19}   LR  {col 28}  df{col 33}   p {col 39}   FPE {col 48}    AIC {col 58}   HQIC {col 68}   SBIC {col 79}{c |}
+{res}{col 3}{text}{c LT}{hline 5}{c +}{hline 9}{hline 8}{hline 1}{hline 5}{hline 6}{hline 8}{hline 1}{hline 9}{hline 1}{hline 9}{hline 1}{hline 9}{hline 1}{hline 1}{c RT}
+{col 3}{text}{c |}   0{col 9}{c |}{result}{space 1}-412.064{col 19}{col 28}{col 33}{col 39} 5444.35{col 48}{space 1} 14.2781{col 58}{space 1} 14.3058{col 68}{space 1} 14.3491{col 79}{text}{c |}
+{res}{col 3}{text}{c |}   1{col 9}{c |}{result}{space 1}-327.452{col 19}{space 1} 169.22{col 28}   4{col 33} 0.000{col 39} 337.914{col 48}{space 1} 11.4984{col 58}{space 1} 11.5814{col 68}{space 1} 11.7115{col 77}{txt}*{res}{col 79}{text}{c |}
+{res}{col 3}{text}{c |}   2{col 9}{c |}{result}{space 1}-322.617{col 19}{space 1} 9.6702{col 28}   4{col 33} 0.046{col 39} 328.543{col 48}{space 1} 11.4696{col 58}{space 1} 11.6079{col 68}{space 1} 11.8248{col 79}{text}{c |}
+{res}{col 3}{text}{c |}   3{col 9}{c |}{result}{space 1} -315.09{col 19}{space 1} 15.054{col 28}   4{col 33} 0.005{col 39} 291.356{col 48}{space 1} 11.3479{col 58}{space 1} 11.5417{col 68}{space 1} 11.8453{col 79}{text}{c |}
+{res}{col 3}{text}{c |}   4{col 9}{c |}{result}{space 1}-306.666{col 19}{space 1} 16.848{col 27}{txt}*{res}{col 28}   4{col 33} 0.002{col 39} 250.807{col 47}{txt}*{res}{col 48}{space 1} 11.1954{col 57}{txt}*{res}{col 58}{space 1} 11.4445{col 67}{txt}*{res}{col 68}{space 1} 11.8348{col 79}{text}{c |}
+{res}{col 3}{text}{c BLC}{hline 5}{c BT}{hline 9}{hline 8}{hline 1}{hline 5}{hline 6}{hline 8}{hline 1}{hline 9}{hline 1}{hline 9}{hline 1}{hline 9}{hline 1}{hline 1}{c BRC}
+{res}{txt}{space 3}* optimal lag
+{space 3}Endogenous: {res}gdp_growth trade_gdp
+{txt}{space 3} Exogenous: {res}_cons
+{txt}
+{com}. var gdp_growth trade_gdp, lags(1/2)
+{res}
+{txt}Vector autoregression
+
+{col 1}Sample: {res}1963 {txt}thru{res} 2022 {txt}{col 49}Number of obs{col 67}= {res}        60
+{txt}Log likelihood =  {res}-333.3376{txt}{col 38}{col 49}AIC{col 67}=  {res} 11.44459
+{txt}FPE{col 16}=  {res} 320.4121{txt}{col 49}HQIC{col 67}=  {res} 11.58112
+{txt}Det(Sigma_ml){col 16}=  {res} 229.4075{txt}{col 49}SBIC{col 67}=  {res} 11.79364
+
+{col 1}{text}Equation        {col 18}  Parms{col 26}     RMSE {col 37}   R-sq  {col 47}   chi2   {col 58} P>chi2
+{res}{col 1}{text}{hline 17}{hline 8}{hline 11}{hline 10}{hline 11}{hline 7}
+{col 1}{text}gdp_growth      {col 18}{result}     5{col 26}{space 2} 4.09943{col 37}{space 1} 0.0036{col 47} .2185319{col 58} 0.9944
+{col 1}{text}trade_gdp       {col 18}{result}     5{col 26}{space 2} 4.03242{col 37}{space 1} 0.9556{col 47} 1292.525{col 58} 0.0000
+{col 1}{text}{hline 17}{hline 8}{hline 11}{hline 10}{hline 11}{hline 7}
+{res}
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 14}{c |} Coefficient{col 26}  Std. err.{col 38}      z{col 46}   P>|z|{col 54}     [95% con{col 67}f. interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}gdp_growth   {txt}{c |}
+{space 2}gdp_growth {c |}
+{space 9}L1. {c |}{col 14}{res}{space 2}-.0056276{col 26}{space 2} .1290057{col 37}{space 1}   -0.04{col 46}{space 3}0.965{col 54}{space 4}-.2584741{col 67}{space 3} .2472189
+{txt}{space 9}L2. {c |}{col 14}{res}{space 2}-.0577812{col 26}{space 2} .1312515{col 37}{space 1}   -0.44{col 46}{space 3}0.660{col 54}{space 4}-.3150294{col 67}{space 3}  .199467
+{txt}{space 12} {c |}
+{space 3}trade_gdp {c |}
+{space 9}L1. {c |}{col 14}{res}{space 2} .0027654{col 26}{space 2} .1265292{col 37}{space 1}    0.02{col 46}{space 3}0.983{col 54}{space 4}-.2452273{col 67}{space 3}  .250758
+{txt}{space 9}L2. {c |}{col 14}{res}{space 2} .0013542{col 26}{space 2} .1297291{col 37}{space 1}    0.01{col 46}{space 3}0.992{col 54}{space 4}-.2529102{col 67}{space 3} .2556187
+{txt}{space 12} {c |}
+{space 7}_cons {c |}{col 14}{res}{space 2} 4.985074{col 26}{space 2} 1.425825{col 37}{space 1}    3.50{col 46}{space 3}0.000{col 54}{space 4} 2.190507{col 67}{space 3}  7.77964
+{txt}{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}trade_gdp    {txt}{c |}
+{space 2}gdp_growth {c |}
+{space 9}L1. {c |}{col 14}{res}{space 2} .0238795{col 26}{space 2} .1268968{col 37}{space 1}    0.19{col 46}{space 3}0.851{col 54}{space 4}-.2248337{col 67}{space 3} .2725927
+{txt}{space 9}L2. {c |}{col 14}{res}{space 2} -.382487{col 26}{space 2} .1291059{col 37}{space 1}   -2.96{col 46}{space 3}0.003{col 54}{space 4}-.6355299{col 67}{space 3} -.129444
+{txt}{space 12} {c |}
+{space 3}trade_gdp {c |}
+{space 9}L1. {c |}{col 14}{res}{space 2} 1.125697{col 26}{space 2} .1244608{col 37}{space 1}    9.04{col 46}{space 3}0.000{col 54}{space 4} .8817582{col 67}{space 3} 1.369636
+{txt}{space 9}L2. {c |}{col 14}{res}{space 2} -.116799{col 26}{space 2} .1276085{col 37}{space 1}   -0.92{col 46}{space 3}0.360{col 54}{space 4} -.366907{col 67}{space 3} .1333089
+{txt}{space 12} {c |}
+{space 7}_cons {c |}{col 14}{res}{space 2} 2.372542{col 26}{space 2} 1.402518{col 37}{space 1}    1.69{col 46}{space 3}0.091{col 54}{space 4}-.3763422{col 67}{space 3} 5.121426
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+
+{com}. vargranger
+
+{txt}{col 4}Granger causality Wald tests
+{res}{col 3}{text}{c TLC}{hline 19}{hline 19}{c TT}{hline 9}{hline 6}{hline 12}{c TRC}
+{col 3}{text}{c |}          Equation{col 23}          Excluded{col 42}{c |}   chi2 {col 52}   df{col 58}Prob > chi2{col 70}{c |}
+{res}{col 3}{text}{c LT}{hline 19}{hline 19}{c +}{hline 9}{hline 6}{hline 12}{c RT}
+{col 3}{text}{c |}        gdp_growth{col 23}         trade_gdp{col 42}{c |}{result}{space 1} .01976{col 52}    2{col 58}{space 2} 0.990{col 70}{text}{c |}
+{res}{col 3}{text}{c |}        gdp_growth{col 23}               ALL{col 42}{c |}{result}{space 1} .01976{col 52}    2{col 58}{space 2} 0.990{col 70}{text}{c |}
+{res}{col 3}{text}{c LT}{hline 19}{hline 19}{c +}{hline 9}{hline 6}{hline 12}{c RT}
+{col 3}{text}{c |}         trade_gdp{col 23}        gdp_growth{col 42}{c |}{result}{space 1} 8.8258{col 52}    2{col 58}{space 2} 0.012{col 70}{text}{c |}
+{res}{col 3}{text}{c |}         trade_gdp{col 23}               ALL{col 42}{c |}{result}{space 1} 8.8258{col 52}    2{col 58}{space 2} 0.012{col 70}{text}{c |}
+{res}{col 3}{text}{c BLC}{hline 19}{hline 19}{c BT}{hline 9}{hline 6}{hline 12}{c BRC}
+{res}{txt}
+{com}. 
+. ********************************************************************************
+. * 5. Advanced Regression Analysis
+. ********************************************************************************
+. * Generate standardized variables for better coefficient interpretation
+. foreach var of varlist gdp_growth trade_gdp investment inflation govt_exp tertiary_educ {c -(}
+{txt}  2{com}.     egen std_`var' = std(`var')
+{txt}  3{com}. {c )-}
+{txt}(1 missing value generated)
+(48 missing values generated)
+(14 missing values generated)
+
+{com}. 
+. * Model 1: Basic model with standardized variables
+. eststo clear
+{txt}
+{com}. eststo: reg std_gdp_growth std_trade_gdp std_investment std_inflation std_govt_exp std_tertiary_educ, robust
+
+{txt}Linear regression                               Number of obs     = {res}        15
+                                                {txt}F(5, 9)           =  {res}     2.89
+                                                {txt}Prob > F          = {res}    0.0795
+                                                {txt}R-squared         = {res}    0.4925
+                                                {txt}Root MSE          =    {res} .97365
+
+{txt}{hline 18}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 19}{c |}{col 31}    Robust
+{col 1}   std_gdp_growth{col 19}{c |} Coefficient{col 31}  std. err.{col 43}      t{col 51}   P>|t|{col 59}     [95% con{col 72}f. interval]
+{hline 18}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 4}std_trade_gdp {c |}{col 19}{res}{space 2} 1.129783{col 31}{space 2} 1.912014{col 42}{space 1}    0.59{col 51}{space 3}0.569{col 59}{space 4}-3.195494{col 72}{space 3} 5.455061
+{txt}{space 3}std_investment {c |}{col 19}{res}{space 2}-.3946321{col 31}{space 2} 1.492392{col 42}{space 1}   -0.26{col 51}{space 3}0.797{col 59}{space 4}-3.770658{col 72}{space 3} 2.981394
+{txt}{space 4}std_inflation {c |}{col 19}{res}{space 2}-.8753563{col 31}{space 2}  .727174{col 42}{space 1}   -1.20{col 51}{space 3}0.259{col 59}{space 4}-2.520338{col 72}{space 3} .7696257
+{txt}{space 5}std_govt_exp {c |}{col 19}{res}{space 2}-.7866169{col 31}{space 2} .3209513{col 42}{space 1}   -2.45{col 51}{space 3}0.037{col 59}{space 4}-1.512659{col 72}{space 3}-.0605747
+{txt}std_tertiary_educ {c |}{col 19}{res}{space 2} 1.536544{col 31}{space 2} 2.467874{col 42}{space 1}    0.62{col 51}{space 3}0.549{col 59}{space 4}-4.046176{col 72}{space 3} 7.119263
+{txt}{space 12}_cons {c |}{col 19}{res}{space 2}-3.416772{col 31}{space 2}  2.06898{col 42}{space 1}   -1.65{col 51}{space 3}0.133{col 59}{space 4}-8.097131{col 72}{space 3} 1.263586
+{txt}{hline 18}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}({res}est1{txt} stored)
+
+{com}. 
+. * Model 2: With period controls
+. eststo: reg std_gdp_growth std_trade_gdp std_investment std_inflation std_govt_exp std_tertiary_educ ///
+>     i.period2 i.period3, robust
+{txt}{p 0 6 2}note: {bf:0.period2} omitted because of collinearity.{p_end}
+{p 0 6 2}note: {bf:1.period3} omitted because of collinearity.{p_end}
+
+Linear regression                               Number of obs     = {res}        15
+                                                {txt}F(5, 9)           =  {res}     2.89
+                                                {txt}Prob > F          = {res}    0.0795
+                                                {txt}R-squared         = {res}    0.4925
+                                                {txt}Root MSE          =    {res} .97365
+
+{txt}{hline 20}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 21}{c |}{col 33}    Robust
+{col 1}     std_gdp_growth{col 21}{c |} Coefficient{col 33}  std. err.{col 45}      t{col 53}   P>|t|{col 61}     [95% con{col 74}f. interval]
+{hline 20}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 6}std_trade_gdp {c |}{col 21}{res}{space 2} 1.129783{col 33}{space 2} 1.912014{col 44}{space 1}    0.59{col 53}{space 3}0.569{col 61}{space 4}-3.195494{col 74}{space 3} 5.455061
+{txt}{space 5}std_investment {c |}{col 21}{res}{space 2}-.3946321{col 33}{space 2} 1.492392{col 44}{space 1}   -0.26{col 53}{space 3}0.797{col 61}{space 4}-3.770658{col 74}{space 3} 2.981394
+{txt}{space 6}std_inflation {c |}{col 21}{res}{space 2}-.8753563{col 33}{space 2}  .727174{col 44}{space 1}   -1.20{col 53}{space 3}0.259{col 61}{space 4}-2.520338{col 74}{space 3} .7696257
+{txt}{space 7}std_govt_exp {c |}{col 21}{res}{space 2}-.7866169{col 33}{space 2} .3209513{col 44}{space 1}   -2.45{col 53}{space 3}0.037{col 61}{space 4}-1.512659{col 74}{space 3}-.0605747
+{txt}{space 2}std_tertiary_educ {c |}{col 21}{res}{space 2} 1.536544{col 33}{space 2} 2.467874{col 44}{space 1}    0.62{col 53}{space 3}0.549{col 61}{space 4}-4.046176{col 74}{space 3} 7.119263
+{txt}{space 19} {c |}
+{space 12}period2 {c |}
+{space 17}0  {c |}{col 21}{res}{space 2}        0{col 33}{txt}  (omitted)
+{space 19} {c |}
+{space 12}period3 {c |}
+Pre-liberalization  {c |}{col 21}{res}{space 2}        0{col 33}{txt}  (omitted)
+{space 14}_cons {c |}{col 21}{res}{space 2}-3.416772{col 33}{space 2}  2.06898{col 44}{space 1}   -1.65{col 53}{space 3}0.133{col 61}{space 4}-8.097131{col 74}{space 3} 1.263586
+{txt}{hline 20}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}({res}est2{txt} stored)
+
+{com}. 
+. * Model 3: With interactions
+. eststo: reg std_gdp_growth c.std_trade_gdp##c.std_investment c.std_trade_gdp##c.std_tertiary_educ ///
+>     std_inflation std_govt_exp i.period2 i.period3, robust
+{txt}{p 0 6 2}note: {bf:std_trade_gdp} omitted because of collinearity.{p_end}
+{p 0 6 2}note: {bf:0.period2} omitted because of collinearity.{p_end}
+{p 0 6 2}note: {bf:1.period3} omitted because of collinearity.{p_end}
+
+Linear regression                               Number of obs     = {res}        15
+                                                {txt}F(7, 7)           =  {res}    12.84
+                                                {txt}Prob > F          = {res}    0.0016
+                                                {txt}R-squared         = {res}    0.6463
+                                                {txt}Root MSE          =    {res} .92177
+
+{txt}{hline 36}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 37}{c |}{col 49}    Robust
+{col 1}                     std_gdp_growth{col 37}{c |} Coefficient{col 49}  std. err.{col 61}      t{col 69}   P>|t|{col 77}     [95% con{col 90}f. interval]
+{hline 36}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 22}std_trade_gdp {c |}{col 37}{res}{space 2} 11.74945{col 49}{space 2} 7.339338{col 60}{space 1}    1.60{col 69}{space 3}0.153{col 77}{space 4}-5.605331{col 90}{space 3} 29.10422
+{txt}{space 21}std_investment {c |}{col 37}{res}{space 2}-7.426181{col 49}{space 2} 4.407721{col 60}{space 1}   -1.68{col 69}{space 3}0.136{col 77}{space 4}-17.84879{col 90}{space 3} 2.996423
+{txt}{space 35} {c |}
+{space 3}c.std_trade_gdp#c.std_investment {c |}{col 37}{res}{space 2} 5.429694{col 49}{space 2} 2.819375{col 60}{space 1}    1.93{col 69}{space 3}0.096{col 77}{space 4}-1.237069{col 90}{space 3} 12.09646
+{txt}{space 35} {c |}
+{space 22}std_trade_gdp {c |}{col 37}{res}{space 2}        0{col 49}{txt}  (omitted)
+{space 18}std_tertiary_educ {c |}{col 37}{res}{space 2} 15.28338{col 49}{space 2} 8.301937{col 60}{space 1}    1.84{col 69}{space 3}0.108{col 77}{space 4}-4.347586{col 90}{space 3} 34.91434
+{txt}{space 35} {c |}
+c.std_trade_gdp#c.std_tertiary_educ {c |}{col 37}{res}{space 2}-10.88041{col 49}{space 2} 6.472724{col 60}{space 1}   -1.68{col 69}{space 3}0.137{col 77}{space 4}-26.18597{col 90}{space 3} 4.425151
+{txt}{space 35} {c |}
+{space 22}std_inflation {c |}{col 37}{res}{space 2}-.3849172{col 49}{space 2} .6349204{col 60}{space 1}   -0.61{col 69}{space 3}0.563{col 77}{space 4}-1.886265{col 90}{space 3} 1.116431
+{txt}{space 23}std_govt_exp {c |}{col 37}{res}{space 2}-.9828808{col 49}{space 2} .4655542{col 60}{space 1}   -2.11{col 69}{space 3}0.073{col 77}{space 4}-2.083742{col 90}{space 3}   .11798
+{txt}{space 35} {c |}
+{space 28}period2 {c |}
+{space 33}0  {c |}{col 37}{res}{space 2}        0{col 49}{txt}  (omitted)
+{space 35} {c |}
+{space 28}period3 {c |}
+{space 16}Pre-liberalization  {c |}{col 37}{res}{space 2}        0{col 49}{txt}  (omitted)
+{space 30}_cons {c |}{col 37}{res}{space 2}-16.07447{col 49}{space 2} 8.077132{col 60}{space 1}   -1.99{col 69}{space 3}0.087{col 77}{space 4}-35.17385{col 90}{space 3} 3.024916
+{txt}{hline 36}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}({res}est3{txt} stored)
+
+{com}. 
+. * Model 4: With squared terms
+. eststo: reg std_gdp_growth c.std_trade_gdp##c.std_trade_gdp std_investment std_inflation ///
+>     std_govt_exp std_tertiary_educ i.period2 i.period3, robust
+{txt}{p 0 6 2}note: {bf:0.period2} omitted because of collinearity.{p_end}
+{p 0 6 2}note: {bf:1.period3} omitted because of collinearity.{p_end}
+
+Linear regression                               Number of obs     = {res}        15
+                                                {txt}F(6, 8)           =  {res}     5.13
+                                                {txt}Prob > F          = {res}    0.0190
+                                                {txt}R-squared         = {res}    0.5032
+                                                {txt}Root MSE          =    {res} 1.0218
+
+{txt}{hline 32}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 33}{c |}{col 45}    Robust
+{col 1}                 std_gdp_growth{col 33}{c |} Coefficient{col 45}  std. err.{col 57}      t{col 65}   P>|t|{col 73}     [95% con{col 86}f. interval]
+{hline 32}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 18}std_trade_gdp {c |}{col 33}{res}{space 2} -.988684{col 45}{space 2} 4.949662{col 56}{space 1}   -0.20{col 65}{space 3}0.847{col 73}{space 4}-12.40263{col 86}{space 3} 10.42526
+{txt}{space 31} {c |}
+c.std_trade_gdp#c.std_trade_gdp {c |}{col 33}{res}{space 2} .9400788{col 45}{space 2} 1.737378{col 56}{space 1}    0.54{col 65}{space 3}0.603{col 73}{space 4}-3.066322{col 86}{space 3}  4.94648
+{txt}{space 31} {c |}
+{space 17}std_investment {c |}{col 33}{res}{space 2}-.1942392{col 45}{space 2} 1.536776{col 56}{space 1}   -0.13{col 65}{space 3}0.903{col 73}{space 4}-3.738051{col 86}{space 3} 3.349572
+{txt}{space 18}std_inflation {c |}{col 33}{res}{space 2} -1.63842{col 45}{space 2} 1.115061{col 56}{space 1}   -1.47{col 65}{space 3}0.180{col 73}{space 4}-4.209755{col 86}{space 3} .9329149
+{txt}{space 19}std_govt_exp {c |}{col 33}{res}{space 2}-.7501773{col 45}{space 2} .3809399{col 56}{space 1}   -1.97{col 65}{space 3}0.084{col 73}{space 4}-1.628626{col 86}{space 3} .1282716
+{txt}{space 14}std_tertiary_educ {c |}{col 33}{res}{space 2} 1.224808{col 45}{space 2} 2.478705{col 56}{space 1}    0.49{col 65}{space 3}0.634{col 73}{space 4}-4.491096{col 86}{space 3} 6.940712
+{txt}{space 31} {c |}
+{space 24}period2 {c |}
+{space 29}0  {c |}{col 33}{res}{space 2}        0{col 45}{txt}  (omitted)
+{space 31} {c |}
+{space 24}period3 {c |}
+{space 12}Pre-liberalization  {c |}{col 33}{res}{space 2}        0{col 45}{txt}  (omitted)
+{space 26}_cons {c |}{col 33}{res}{space 2}-2.652637{col 45}{space 2} 3.001357{col 56}{space 1}   -0.88{col 65}{space 3}0.403{col 73}{space 4}-9.573778{col 86}{space 3} 4.268503
+{txt}{hline 32}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}({res}est4{txt} stored)
+
+{com}. 
+. * Export regression results
+. esttab using "output/advanced_regression_results.csv", replace ///
+>     star(* 0.10 ** 0.05 *** 0.01) ///
+>     title("Advanced Regression Results") ///
+>     mtitles("Basic" "With Periods" "Interactions" "Non-linear") ///
+>     stats(N r2_a F p ll aic bic) ///
+>     note("* p<0.10, ** p<0.05, *** p<0.01") ///
+>     addnotes("All variables are standardized")
+{res}{txt}(output written to {browse  `"output/advanced_regression_results.csv"'})
+
+{com}. 
+. ********************************************************************************
+. * 6. Diagnostic Tests
+. ********************************************************************************
+. * Run a version of the model without robust SE for diagnostic tests
+. quietly reg std_gdp_growth std_trade_gdp std_investment std_inflation std_govt_exp std_tertiary_educ
+{txt}
+{com}. 
+. * Residual analysis
+. predict resid, residuals
+{txt}(48 missing values generated)
+
+{com}. predict yhat, xb
+{txt}(48 missing values generated)
+
+{com}. 
+. * Normality test
+. sktest resid
+{res}
+{txt}Skewness and kurtosis tests for normality
+{col 58}{hline 5} Joint test {hline 5}
+{col 5}Variable {c |}{col 22}Obs   Pr(skewness)   Pr(kurtosis)   Adj chi2(2)  Prob>chi2
+{hline 13}{c +}{hline 65}
+       resid {c |}{res}{col 16}       15{col 34}0.0922{col 49}0.7644{col 60}     3.43{col 74}0.1800
+{txt}
+{com}. 
+. * Heteroskedasticity tests
+. estat hettest
+
+{txt}Breusch–Pagan/Cook–Weisberg test for heteroskedasticity 
+Assumption: Normal error terms
+{p 0 11 0}Variable:{space 1}{res:{txt:Fitted values of} {res:std_gdp_growth}}{p_end}
+
+H0: Constant variance
+
+{ralign 11:chi2({res:1})} = {res}{ralign 6:0.94}
+{txt}{ralign 11:Prob > chi2} = {res}{ralign 6:0.3310}
+{txt}
+{com}. estat imtest, white
+
+{txt}White's test
+H0: Homoskedasticity
+Ha: Unrestricted heteroskedasticity
+
+{ralign 11:chi2({res:14})} = {res}{ralign 6:15.00}
+{txt}{ralign 11:Prob > chi2} = {res}{ralign 6:0.3782}
+
+{txt}Cameron & Trivedi's decomposition of IM-test
+
+{hline 21}{c TT}{hline 28}
+{ralign 20:Source} {c |}       chi2     df         p
+{hline 21}{c +}{hline 28}
+{ralign 20:Heteroskedasticity} {c |}{res}      15.00     14    0.3782
+{txt}{ralign 20:Skewness} {c |}{res}      10.91      5    0.0532
+{txt}{ralign 20:Kurtosis} {c |}{res}       0.21      1    0.6442
+{txt}{hline 21}{c +}{hline 28}
+{ralign 20:Total} {c |}{res}      26.12     20    0.1617
+{txt}{hline 21}{c BT}{hline 28}
+
+{com}. 
+. * Plot residuals
+. twoway (scatter resid yhat) (lowess resid yhat), ///
+>     title("Residual Plot") ytitle("Residuals") xtitle("Fitted values") ///
+>     graphregion(color(white)) bgcolor(white) ///
+>     saving("output/residual_plot.gph", replace)
+{res}{txt}{p 0 4 2}
+(file {bf}
+output/residual_plot.gph{rm}
+not found)
+{p_end}
+{res}{txt}file {bf:output/residual_plot.gph} saved
+
+{com}. graph export "output/residual_plot.png", replace
+{txt}{p 0 4 2}
+(file {bf}
+output/residual_plot.png{rm}
+not found)
+{p_end}
+{p 0 4 2}
+file {bf}
+output/residual_plot.png{rm}
+saved as
+PNG
+format
+{p_end}
+
+{com}. 
+. * QQ plot
+. qnorm resid, title("Q-Q Plot of Residuals") ///
+>     graphregion(color(white)) bgcolor(white) ///
+>     saving("output/qq_plot.gph", replace)
+{res}{txt}{p 0 4 2}
+(file {bf}
+output/qq_plot.gph{rm}
+not found)
+{p_end}
+{res}{txt}file {bf:output/qq_plot.gph} saved
+
+{com}. graph export "output/qq_plot.png", replace
+{txt}{p 0 4 2}
+(file {bf}
+output/qq_plot.png{rm}
+not found)
+{p_end}
+{p 0 4 2}
+file {bf}
+output/qq_plot.png{rm}
+saved as
+PNG
+format
+{p_end}
+
+{com}. 
+. * Additional diagnostic plots
+. * Residuals vs. predictors
+. foreach var of varlist std_trade_gdp std_investment std_inflation std_govt_exp std_tertiary_educ {c -(}
+{txt}  2{com}.     twoway (scatter resid `var') (lowess resid `var'), ///
+>         title("Residuals vs. `var'") ///
+>         ytitle("Residuals") xtitle("`var'") ///
+>         graphregion(color(white)) bgcolor(white) ///
+>         saving("output/resid_`var'_plot.gph", replace)
+{txt}  3{com}.     graph export "output/resid_`var'_plot.png", replace
+{txt}  4{com}. {c )-}
+{res}{txt}{p 0 4 2}
+(file {bf}
+output/resid_std_trade_gdp_plot.gph{rm}
+not found)
+{p_end}
+{res}{txt}file {bf:output/resid_std_trade_gdp_plot.gph} saved
+{p 0 4 2}
+(file {bf}
+output/resid_std_trade_gdp_plot.png{rm}
+not found)
+{p_end}
+{p 0 4 2}
+file {bf}
+output/resid_std_trade_gdp_plot.png{rm}
+saved as
+PNG
+format
+{p_end}
+{res}{txt}{p 0 4 2}
+(file {bf}
+output/resid_std_investment_plot.gph{rm}
+not found)
+{p_end}
+{res}{txt}file {bf:output/resid_std_investment_plot.gph} saved
+{p 0 4 2}
+(file {bf}
+output/resid_std_investment_plot.png{rm}
+not found)
+{p_end}
+{p 0 4 2}
+file {bf}
+output/resid_std_investment_plot.png{rm}
+saved as
+PNG
+format
+{p_end}
+{res}{txt}{p 0 4 2}
+(file {bf}
+output/resid_std_inflation_plot.gph{rm}
+not found)
+{p_end}
+{res}{txt}file {bf:output/resid_std_inflation_plot.gph} saved
+{p 0 4 2}
+(file {bf}
+output/resid_std_inflation_plot.png{rm}
+not found)
+{p_end}
+{p 0 4 2}
+file {bf}
+output/resid_std_inflation_plot.png{rm}
+saved as
+PNG
+format
+{p_end}
+{res}{txt}{p 0 4 2}
+(file {bf}
+output/resid_std_govt_exp_plot.gph{rm}
+not found)
+{p_end}
+{res}{txt}file {bf:output/resid_std_govt_exp_plot.gph} saved
+{p 0 4 2}
+(file {bf}
+output/resid_std_govt_exp_plot.png{rm}
+not found)
+{p_end}
+{p 0 4 2}
+file {bf}
+output/resid_std_govt_exp_plot.png{rm}
+saved as
+PNG
+format
+{p_end}
+{res}{txt}{p 0 4 2}
+(file {bf}
+output/resid_std_tertiary_educ_plot.gph{rm}
+not found)
+{p_end}
+{res}{txt}file {bf:output/resid_std_tertiary_educ_plot.gph} saved
+{p 0 4 2}
+(file {bf}
+output/resid_std_tertiary_educ_plot.png{rm}
+not found)
+{p_end}
+{p 0 4 2}
+file {bf}
+output/resid_std_tertiary_educ_plot.png{rm}
+saved as
+PNG
+format
+{p_end}
+
+{com}. 
+. * Return to robust regression for further analysis
+. quietly reg std_gdp_growth std_trade_gdp std_investment std_inflation std_govt_exp std_tertiary_educ, robust
+{txt}
+{com}. 
+. ********************************************************************************
+. * 7. Marginal Effects Analysis
+. ********************************************************************************
+. * Calculate and plot marginal effects
+. margins, dydx(std_trade_gdp) at(std_investment=(-2(1)2))
+{res}
+{txt}Average marginal effects{col 61}{lalign 13:Number of obs}{col 74} = {res}{ralign 2:15}
+{txt}{col 1}Model VCE: {res:Robust}
+
+{txt}{p2colset 1 13 13 2}{...}
+{p2col:Expression:}{res:Linear prediction, predict()}{p_end}
+{p2col:dy/dx wrt:}{res:std_trade_gdp}{p_end}
+{p2colreset}{...}
+{lalign 7:1._at: }{space 0}{lalign 14:std_investment} = {res:{ralign 2:-2}}
+{lalign 7:2._at: }{space 0}{lalign 14:std_investment} = {res:{ralign 2:-1}}
+{lalign 7:3._at: }{space 0}{lalign 14:std_investment} = {res:{ralign 2:0}}
+{lalign 7:4._at: }{space 0}{lalign 14:std_investment} = {res:{ralign 2:1}}
+{lalign 7:5._at: }{space 0}{lalign 14:std_investment} = {res:{ralign 2:2}}
+
+{res}{txt}{hline 14}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 15}{c |}{col 27} Delta-method
+{col 15}{c |}      dy/dx{col 27}   std. err.{col 39}      t{col 47}   P>|t|{col 55}     [95% con{col 68}f. interval]
+{hline 14}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}std_trade_gdp {txt}{c |}
+{space 10}_at {c |}
+{space 11}1  {c |}{col 15}{res}{space 2} 1.129783{col 27}{space 2} 1.912014{col 38}{space 1}    0.59{col 47}{space 3}0.569{col 55}{space 4}-3.195494{col 68}{space 3} 5.455061
+{txt}{space 11}2  {c |}{col 15}{res}{space 2} 1.129783{col 27}{space 2} 1.912014{col 38}{space 1}    0.59{col 47}{space 3}0.569{col 55}{space 4}-3.195494{col 68}{space 3} 5.455061
+{txt}{space 11}3  {c |}{col 15}{res}{space 2} 1.129783{col 27}{space 2} 1.912014{col 38}{space 1}    0.59{col 47}{space 3}0.569{col 55}{space 4}-3.195494{col 68}{space 3} 5.455061
+{txt}{space 11}4  {c |}{col 15}{res}{space 2} 1.129783{col 27}{space 2} 1.912014{col 38}{space 1}    0.59{col 47}{space 3}0.569{col 55}{space 4}-3.195494{col 68}{space 3} 5.455061
+{txt}{space 11}5  {c |}{col 15}{res}{space 2} 1.129783{col 27}{space 2} 1.912014{col 38}{space 1}    0.59{col 47}{space 3}0.569{col 55}{space 4}-3.195494{col 68}{space 3} 5.455061
+{txt}{hline 14}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}. marginsplot, title("Marginal Effect of Trade on Growth") ///
+>     subtitle("At Different Levels of Investment") ///
+>     saving("output/marginal_effects.gph", replace)
+{res}
+{text}{p 0 0 2}Variables that uniquely identify margins: {bf:std_investment}{p_end}
+{res}{txt}{p 0 4 2}
+(file {bf}
+output/marginal_effects.gph{rm}
+not found)
+{p_end}
+{res}{txt}file {bf:output/marginal_effects.gph} saved
+
+{com}. graph export "output/marginal_effects.png", replace
+{txt}{p 0 4 2}
+(file {bf}
+output/marginal_effects.png{rm}
+not found)
+{p_end}
+{p 0 4 2}
+file {bf}
+output/marginal_effects.png{rm}
+saved as
+PNG
+format
+{p_end}
+
+{com}. 
+. ********************************************************************************
+. * 8. Export Summary Tables
+. ********************************************************************************
+. * Create LaTeX tables for publication
+. eststo clear
+{txt}
+{com}. eststo: reg std_gdp_growth std_trade_gdp std_investment std_inflation std_govt_exp std_tertiary_educ, robust
+
+{txt}Linear regression                               Number of obs     = {res}        15
+                                                {txt}F(5, 9)           =  {res}     2.89
+                                                {txt}Prob > F          = {res}    0.0795
+                                                {txt}R-squared         = {res}    0.4925
+                                                {txt}Root MSE          =    {res} .97365
+
+{txt}{hline 18}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 19}{c |}{col 31}    Robust
+{col 1}   std_gdp_growth{col 19}{c |} Coefficient{col 31}  std. err.{col 43}      t{col 51}   P>|t|{col 59}     [95% con{col 72}f. interval]
+{hline 18}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 4}std_trade_gdp {c |}{col 19}{res}{space 2} 1.129783{col 31}{space 2} 1.912014{col 42}{space 1}    0.59{col 51}{space 3}0.569{col 59}{space 4}-3.195494{col 72}{space 3} 5.455061
+{txt}{space 3}std_investment {c |}{col 19}{res}{space 2}-.3946321{col 31}{space 2} 1.492392{col 42}{space 1}   -0.26{col 51}{space 3}0.797{col 59}{space 4}-3.770658{col 72}{space 3} 2.981394
+{txt}{space 4}std_inflation {c |}{col 19}{res}{space 2}-.8753563{col 31}{space 2}  .727174{col 42}{space 1}   -1.20{col 51}{space 3}0.259{col 59}{space 4}-2.520338{col 72}{space 3} .7696257
+{txt}{space 5}std_govt_exp {c |}{col 19}{res}{space 2}-.7866169{col 31}{space 2} .3209513{col 42}{space 1}   -2.45{col 51}{space 3}0.037{col 59}{space 4}-1.512659{col 72}{space 3}-.0605747
+{txt}std_tertiary_educ {c |}{col 19}{res}{space 2} 1.536544{col 31}{space 2} 2.467874{col 42}{space 1}    0.62{col 51}{space 3}0.549{col 59}{space 4}-4.046176{col 72}{space 3} 7.119263
+{txt}{space 12}_cons {c |}{col 19}{res}{space 2}-3.416772{col 31}{space 2}  2.06898{col 42}{space 1}   -1.65{col 51}{space 3}0.133{col 59}{space 4}-8.097131{col 72}{space 3} 1.263586
+{txt}{hline 18}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}({res}est1{txt} stored)
+
+{com}. eststo: reg std_gdp_growth c.std_trade_gdp##c.std_investment c.std_trade_gdp##c.std_tertiary_educ ///
+>     std_inflation std_govt_exp, robust
+{txt}{p 0 6 2}note: {bf:std_trade_gdp} omitted because of collinearity.{p_end}
+
+Linear regression                               Number of obs     = {res}        15
+                                                {txt}F(7, 7)           =  {res}    12.84
+                                                {txt}Prob > F          = {res}    0.0016
+                                                {txt}R-squared         = {res}    0.6463
+                                                {txt}Root MSE          =    {res} .92177
+
+{txt}{hline 36}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 37}{c |}{col 49}    Robust
+{col 1}                     std_gdp_growth{col 37}{c |} Coefficient{col 49}  std. err.{col 61}      t{col 69}   P>|t|{col 77}     [95% con{col 90}f. interval]
+{hline 36}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 22}std_trade_gdp {c |}{col 37}{res}{space 2} 11.74945{col 49}{space 2} 7.339338{col 60}{space 1}    1.60{col 69}{space 3}0.153{col 77}{space 4}-5.605331{col 90}{space 3} 29.10422
+{txt}{space 21}std_investment {c |}{col 37}{res}{space 2}-7.426181{col 49}{space 2} 4.407721{col 60}{space 1}   -1.68{col 69}{space 3}0.136{col 77}{space 4}-17.84879{col 90}{space 3} 2.996423
+{txt}{space 35} {c |}
+{space 3}c.std_trade_gdp#c.std_investment {c |}{col 37}{res}{space 2} 5.429694{col 49}{space 2} 2.819375{col 60}{space 1}    1.93{col 69}{space 3}0.096{col 77}{space 4}-1.237069{col 90}{space 3} 12.09646
+{txt}{space 35} {c |}
+{space 22}std_trade_gdp {c |}{col 37}{res}{space 2}        0{col 49}{txt}  (omitted)
+{space 18}std_tertiary_educ {c |}{col 37}{res}{space 2} 15.28338{col 49}{space 2} 8.301937{col 60}{space 1}    1.84{col 69}{space 3}0.108{col 77}{space 4}-4.347586{col 90}{space 3} 34.91434
+{txt}{space 35} {c |}
+c.std_trade_gdp#c.std_tertiary_educ {c |}{col 37}{res}{space 2}-10.88041{col 49}{space 2} 6.472724{col 60}{space 1}   -1.68{col 69}{space 3}0.137{col 77}{space 4}-26.18597{col 90}{space 3} 4.425151
+{txt}{space 35} {c |}
+{space 22}std_inflation {c |}{col 37}{res}{space 2}-.3849172{col 49}{space 2} .6349204{col 60}{space 1}   -0.61{col 69}{space 3}0.563{col 77}{space 4}-1.886265{col 90}{space 3} 1.116431
+{txt}{space 23}std_govt_exp {c |}{col 37}{res}{space 2}-.9828808{col 49}{space 2} .4655542{col 60}{space 1}   -2.11{col 69}{space 3}0.073{col 77}{space 4}-2.083742{col 90}{space 3}   .11798
+{txt}{space 30}_cons {c |}{col 37}{res}{space 2}-16.07447{col 49}{space 2} 8.077132{col 60}{space 1}   -1.99{col 69}{space 3}0.087{col 77}{space 4}-35.17385{col 90}{space 3} 3.024916
+{txt}{hline 36}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}({res}est2{txt} stored)
+
+{com}. 
+. esttab using "output/regression_tables.tex", replace ///
+>     style(tex) ///
+>     star(* 0.10 ** 0.05 *** 0.01) ///
+>     title("Regression Results") ///
+>     label booktabs ///
+>     alignment(D{c -(}.{c )-}{c -(}.{c )-}{c -(}-1{c )-}) ///
+>     addnotes("All variables are standardized")
+{res}{txt}{p 0 4 2}
+(file {bf}
+output/regression_tables.tex{rm}
+not found)
+{p_end}
+(output written to {browse  `"output/regression_tables.tex"'})
+
+{com}. 
+. * Close log file
+. log close 
+      {txt}name:  {res}<unnamed>
+       {txt}log:  {res}c:\Users\eren\Desktop\fundshedge\output/advanced_analysis_log.txt
+  {txt}log type:  {res}smcl
+ {txt}closed on:  {res} 5 Dec 2024, 04:02:52
+{txt}{.-}
+{smcl}
+{txt}{sf}{ul off}
