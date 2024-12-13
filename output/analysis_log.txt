@@ -3,7 +3,7 @@
       name:  {res}<unnamed>
        {txt}log:  {res}c:\Users\eren\Desktop\fundshedge\output/analysis_log.txt
   {txt}log type:  {res}smcl
- {txt}opened on:  {res} 5 Dec 2024, 03:54:54
+ {txt}opened on:  {res}12 Dec 2024, 20:36:31
 {txt}
 {com}. 
 . * Load the prepared dataset
@@ -239,7 +239,7 @@
       {txt}name:  {res}<unnamed>
        {txt}log:  {res}c:\Users\eren\Desktop\fundshedge\output/analysis_log.txt
   {txt}log type:  {res}smcl
- {txt}closed on:  {res} 5 Dec 2024, 03:54:59
+ {txt}closed on:  {res}12 Dec 2024, 20:36:38
 {txt}{.-}
 {smcl}
 {txt}{sf}{ul off}

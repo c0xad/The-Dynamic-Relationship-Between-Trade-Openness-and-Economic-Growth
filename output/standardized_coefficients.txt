@@ -1,0 +1,7 @@
+Variable,Standardized Coefficient
+c_trade_gdp,0.3327
+c_investment,-1.3712
+c_trade_inv_int,1.0220
+inflation,-1.3699
+govt_exp,-0.7516
+tertiary_educ,1.6059

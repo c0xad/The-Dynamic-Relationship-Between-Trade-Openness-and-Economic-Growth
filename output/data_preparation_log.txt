@@ -3,7 +3,7 @@
       name:  {res}<unnamed>
        {txt}log:  {res}c:\Users\eren\Desktop\fundshedge\output/data_preparation_log.txt
   {txt}log type:  {res}smcl
- {txt}opened on:  {res} 5 Dec 2024, 03:45:05
+ {txt}opened on:  {res}12 Dec 2024, 19:51:40
 {txt}
 {com}. 
 . ********************************************************************************
@@ -65,7 +65,7 @@ Number of observations     {res}           1   {txt}->   {res}63
 {com}. save `gdp'
 {txt}{p 0 4 2}
 file {bf}
-C:\Users\eren\AppData\Local\Temp\ST_2c5c_000001.tmp{rm}
+C:\Users\eren\AppData\Local\Temp\ST_2a44_000001.tmp{rm}
 saved
 as .dta format
 {p_end}
@@ -113,7 +113,7 @@ Number of observations     {res}           1   {txt}->   {res}63
 {com}. save `trade'
 {txt}{p 0 4 2}
 file {bf}
-C:\Users\eren\AppData\Local\Temp\ST_2c5c_000002.tmp{rm}
+C:\Users\eren\AppData\Local\Temp\ST_2a44_000002.tmp{rm}
 saved
 as .dta format
 {p_end}
@@ -161,7 +161,7 @@ Number of observations     {res}           1   {txt}->   {res}63
 {com}. save `exports'
 {txt}{p 0 4 2}
 file {bf}
-C:\Users\eren\AppData\Local\Temp\ST_2c5c_000003.tmp{rm}
+C:\Users\eren\AppData\Local\Temp\ST_2a44_000003.tmp{rm}
 saved
 as .dta format
 {p_end}
@@ -209,7 +209,7 @@ Number of observations     {res}           1   {txt}->   {res}63
 {com}. save `imports'
 {txt}{p 0 4 2}
 file {bf}
-C:\Users\eren\AppData\Local\Temp\ST_2c5c_000004.tmp{rm}
+C:\Users\eren\AppData\Local\Temp\ST_2a44_000004.tmp{rm}
 saved
 as .dta format
 {p_end}
@@ -257,7 +257,7 @@ Number of observations     {res}           1   {txt}->   {res}63
 {com}. save `industry'
 {txt}{p 0 4 2}
 file {bf}
-C:\Users\eren\AppData\Local\Temp\ST_2c5c_000005.tmp{rm}
+C:\Users\eren\AppData\Local\Temp\ST_2a44_000005.tmp{rm}
 saved
 as .dta format
 {p_end}
@@ -305,7 +305,7 @@ Number of observations     {res}           1   {txt}->   {res}63
 {com}. save `gdppc'
 {txt}{p 0 4 2}
 file {bf}
-C:\Users\eren\AppData\Local\Temp\ST_2c5c_000006.tmp{rm}
+C:\Users\eren\AppData\Local\Temp\ST_2a44_000006.tmp{rm}
 saved
 as .dta format
 {p_end}
@@ -353,7 +353,7 @@ Number of observations     {res}           1   {txt}->   {res}63
 {com}. save `inflation'
 {txt}{p 0 4 2}
 file {bf}
-C:\Users\eren\AppData\Local\Temp\ST_2c5c_000007.tmp{rm}
+C:\Users\eren\AppData\Local\Temp\ST_2a44_000007.tmp{rm}
 saved
 as .dta format
 {p_end}
@@ -401,7 +401,7 @@ Number of observations     {res}           1   {txt}->   {res}63
 {com}. save `govt_exp'
 {txt}{p 0 4 2}
 file {bf}
-C:\Users\eren\AppData\Local\Temp\ST_2c5c_000008.tmp{rm}
+C:\Users\eren\AppData\Local\Temp\ST_2a44_000008.tmp{rm}
 saved
 as .dta format
 {p_end}
@@ -447,7 +447,7 @@ Number of observations     {res}           1   {txt}->   {res}63
 {com}. save `education'
 {txt}{p 0 4 2}
 file {bf}
-C:\Users\eren\AppData\Local\Temp\ST_2c5c_000009.tmp{rm}
+C:\Users\eren\AppData\Local\Temp\ST_2a44_000009.tmp{rm}
 saved
 as .dta format
 {p_end}
@@ -577,7 +577,7 @@ saved
       {txt}name:  {res}<unnamed>
        {txt}log:  {res}c:\Users\eren\Desktop\fundshedge\output/data_preparation_log.txt
   {txt}log type:  {res}smcl
- {txt}closed on:  {res} 5 Dec 2024, 03:45:42
+ {txt}closed on:  {res}12 Dec 2024, 19:52:25
 {txt}{.-}
 {smcl}
 {txt}{sf}{ul off}
